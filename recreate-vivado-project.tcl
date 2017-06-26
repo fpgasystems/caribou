@@ -1923,32 +1923,6 @@ set_property "used_in_synthesis" "1" $file_obj
 # Set 'sources_1' fileset file properties for local files
 # None
 
-# Set 'sources_1' fileset object
-set obj [get_filesets sources_1]
-set files [list \
- "[file normalize "$origin_dir/hw/ip/system/fifo_generator_512_deep_async/fifo_generator_512_deep_async.xci"]"\
-]
-add_files -norecurse -fileset $obj $files
-
-# Set 'sources_1' fileset file properties for remote files
-set file "$origin_dir/hw/ip/system/fifo_generator_512_deep_async/fifo_generator_512_deep_async.xci"
-set file [file normalize $file]
-set file_obj [get_files -of_objects [get_filesets sources_1] [list "*$file"]]
-set_property "generate_synth_checkpoint" "1" $file_obj
-set_property "is_enabled" "1" $file_obj
-set_property "is_global_include" "0" $file_obj
-set_property "library" "xil_defaultlib" $file_obj
-set_property "path_mode" "RelativeFirst" $file_obj
-set_property "synth_checkpoint_mode" "Singular" $file_obj
-set_property "used_in" "synthesis implementation simulation" $file_obj
-set_property "used_in_implementation" "1" $file_obj
-set_property "used_in_simulation" "1" $file_obj
-set_property "used_in_synthesis" "1" $file_obj
-
-
-# Set 'sources_1' fileset file properties for local files
-# None
-
 # Create 'constrs_1' fileset (if not found)
 if {[string equal [get_filesets -quiet constrs_1] ""]} {
   create_fileset -constrset constrs_1
