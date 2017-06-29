@@ -1,6 +1,6 @@
 # Caribou
 
-Caribou [1] is **smart distributed storage** built wit FPGAs. Each node stores key-value pairs in main memory and exposes a simple interface over TCP/IP [2] that software clients can connect to. 
+Caribou [1] is **smart distributed storage** built with FPGAs. Each node stores key-value pairs in main memory and exposes a simple interface over TCP/IP [2] that software clients can connect to. 
 
 It is **smart** because it is possible to offload filtering into the storage nodes. The nodes can also perform scans on the data. In this design filtering is a combination of regular expression matching and predicate evaluation. Different types of processing can, however, easily be added to the processing pipeline. 
 
