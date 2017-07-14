@@ -15,6 +15,7 @@
 //--  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //---------------------------------------------------------------------------
 
+
 module nukv_fifogen #(
     parameter ADDR_BITS=5,      // number of bits of address bus
     parameter DATA_SIZE=16     // number of bits of data bus
@@ -74,7 +75,7 @@ generate
 
          FIFO36E1 #(
             .ALMOST_EMPTY_OFFSET(13'h0080),    // Sets the almost empty threshold
-            .ALMOST_FULL_OFFSET(ADDR_BITS>8 ? 2**ADDR_BITS-8 : 2**ADDR_BITS),     // Sets almost full threshold
+            .ALMOST_FULL_OFFSET(2**ADDR_BITS-8),     // Sets almost full threshold
             .DATA_WIDTH(72),                    // Sets data width to 4-72
             .DO_REG(1),                        // Enable output register (1-0) Must be 1 if EN_SYN = FALSE
             .EN_ECC_READ("FALSE"),             // Enable ECC decoder, FALSE, TRUE
@@ -210,7 +211,7 @@ generate
 
          FIFO36E1 #(
             .ALMOST_EMPTY_OFFSET(13'h0080),    // Sets the almost empty threshold
-            .ALMOST_FULL_OFFSET(2**ADDR_BITS),     // Sets almost full threshold
+            .ALMOST_FULL_OFFSET(2**ADDR_BITS-8),     // Sets almost full threshold
             .DATA_WIDTH(18),                    // Sets data width to 4-18
             .DO_REG(1),                        // Enable output register (1-0) Must be 1 if EN_SYN = FALSE
             .EN_ECC_READ("FALSE"),             // Enable ECC decoder, FALSE, TRUE

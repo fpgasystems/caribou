@@ -69,9 +69,10 @@ reg [REGEX_COUNT_BITS-1:0] output_regex_engine;
 reg config_wait;
 reg regex_inputbuffer_ok;
 reg regex_inputbuffer_pre;
+reg [7:0] config_ahead;
 
 assign input_ready = (regex_inputbuffer_ok); 
-assign config_ready = ~regex_input_enable[config_regex_engine] && (regex_inputbuffer_ok); 
+assign config_ready = ~regex_input_enable[config_regex_engine] && (regex_inputbuffer_ok) && (config_ahead<MAX_REGEX_ENGINES-1); 
 
 reg rstBuf;
 
@@ -88,6 +89,7 @@ always @(posedge clk) begin
 		config_wait <= 0;
 		regex_inputbuffer_ok <= 0;
 		regex_inputbuffer_pre <= 0;
+		config_ahead <= 0;
 	end
 	else begin
 		regex_input_enable <= 0;			
@@ -100,6 +102,8 @@ always @(posedge clk) begin
 			regex_input_prebuf[config_regex_engine] <= config_data;
 			regex_input_enable[config_regex_engine] <= 1;
 			regex_input_type[config_regex_engine] <= 1;
+
+			config_ahead <= config_ahead+1;
 			
 			if (config_regex_engine==MAX_REGEX_ENGINES-1) begin
 				config_regex_engine <= 0;
@@ -118,6 +122,13 @@ always @(posedge clk) begin
 		end 
 
 		if (input_ready==1 && input_valid==1) begin
+
+			if (config_ready==1 && config_valid==1 && input_last==1) begin
+				config_ahead <= config_ahead;
+			end else if (input_last==1) begin
+				config_ahead <= config_ahead-1;
+			end
+
 			regex_input_prebuf[current_regex_engine] <= input_data;
 			regex_input_enable[current_regex_engine] <= 1;
 			regex_input_type[current_regex_engine] <= 0;
@@ -184,7 +195,7 @@ generate
 		rem_top_ff rem_top_instance (
 			    .clk(fast_clk),
 	  			.rst(fast_rst),   			
-	  			.softRst(softReset[X]),
+	  			.softRst(0),//softReset[X]),
 
 	    		.input_valid(regex_input_hasdata[X]),
 	    		.input_data(regex_input_data[X][511:0]),

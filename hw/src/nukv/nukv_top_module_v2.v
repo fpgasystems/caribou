@@ -406,9 +406,13 @@ always @(posedge clk) begin
     rst_regd <= rst;
 end
 
+
+reg rst_faster0;
+
 always @(posedge clk_faster) begin     
     frst <= rst_regd;    
-    rst_faster <= frst | ~fclk_locked;
+    rst_faster0 <= frst | ~fclk_locked;
+    rst_faster <= rst_faster0;
 end
 
 
@@ -1139,7 +1143,7 @@ nukv_fifogen #(
 wire predconf_regex_ready;
 wire predconf_pred0_ready;
 wire predconf_predother_ready;
-assign predconf_b_ready = predconf_regex_ready & predconf_predother_ready & predconf_pred0_ready;
+assign predconf_b_ready = predconf_regex_ready & predconf_predother_ready;
 
 nukv_fifogen #(
     .DATA_SIZE(512+96+1),
@@ -1149,7 +1153,7 @@ nukv_fifogen #(
     .rst(rst),
     
     .s_axis_tdata({predconf_data, predconf_scan}),
-    .s_axis_tvalid(predconf_valid & predconf_ready),
+    .s_axis_tvalid(predconf_valid),
     .s_axis_tready(predconf_ready),
     
     .m_axis_tdata(predconf_b_fulldata),
@@ -1168,7 +1172,7 @@ assign value_read_data = value_read_data_buf;
 assign value_read_last = 0;    
 
 
-wire [512:0] regexin_data;
+wire [513:0] regexin_data;
 wire regexin_valid;
 wire regexin_ready;
 wire regexin_prebuf_ready;
@@ -1181,13 +1185,17 @@ wire regexout_data;
 wire regexout_valid;
 wire regexout_ready;
 
+wire buffer_violation;
+
 wire before_get_ready;
+wire before_get_almfull;
 wire condin_ready;
 
 wire cond_valid;
 wire cond_ready;
 wire cond_drop;
 
+assign buffer_violation = ~cond_ready & before_get_ready;
 
 
 nukv_Predicate_Eval_Pipeline_v2 
@@ -1198,7 +1206,7 @@ nukv_Predicate_Eval_Pipeline_v2
     .clk(clk),
     .rst(rst),
     
-    .pred_data({predconf_data[META_WIDTH+MEMORY_WIDTH-1 : META_WIDTH], predconf_data[META_WIDTH-1:0]}),
+    .pred_data({predconf_b_data[META_WIDTH+MEMORY_WIDTH-1 : META_WIDTH], predconf_b_data[META_WIDTH-1:0]}),
     .pred_valid(predconf_b_valid & predconf_b_ready),
     .pred_ready(predconf_predother_ready),
     .pred_scan((SUPPORT_SCANS==1) ? predconf_b_scan : 0),
@@ -1210,7 +1218,7 @@ nukv_Predicate_Eval_Pipeline_v2
     .value_ready(value_read_ready),
 
     .output_valid(value_frompred_valid),
-    .output_ready(value_frompred_ready & regexin_prebuf_ready),
+    .output_ready(value_frompred_ready),
     .output_data(value_frompred_data),
     .output_last(value_frompred_last),
     .output_drop(value_frompred_drop),
@@ -1226,30 +1234,31 @@ nukv_Predicate_Eval_Pipeline_v2
 
         );
 
-assign predconf_pred0_ready = 1;
-
 
 // REGEX ---------------------------------------------------
+wire toregex_ready;
+
+assign value_frompred_ready = toregex_ready & condin_ready & before_get_ready;
 
 fifo_generator_512_shallow_sync 
 //#(
 //    .DATA_SIZE(512+1),
 //    .ADDR_BITS(7)
 //) 
-fifo_sidewait_regex (
+fifo_toward_regex (
     .s_aclk(clk),
     .s_aresetn(~rst),
     
     .s_axis_tdata(value_frompred_data),
-    .s_axis_tvalid(value_frompred_valid & value_frompred_ready & regexin_prebuf_ready),
-    .s_axis_tready(regexin_prebuf_ready),
-    .s_axis_tuser(0),
+    .s_axis_tvalid(value_frompred_valid & value_frompred_ready),
+    .s_axis_tready(toregex_ready),
+    .s_axis_tuser(value_frompred_drop),
     .s_axis_tlast(value_frompred_last),
     
     .m_axis_tdata(regexin_data[511:0]),
     .m_axis_tvalid(regexin_valid),
     .m_axis_tready(regexin_ready),
-    .m_axis_tuser(),
+    .m_axis_tuser(regexin_data[513]),
     .m_axis_tlast(regexin_data[512])
 );
 
@@ -1257,9 +1266,6 @@ assign regexconf_data[512-48*CONDITION_EVALS-1:0] = predconf_b_data[META_WIDTH+4
 assign regexconf_data[511] = scan_mode_on;
 assign regexconf_valid = predconf_b_valid & predconf_b_ready;
 assign predconf_regex_ready = regexconf_ready;
-
-assign regexout_ready = cond_ready;
-
 
 wire [511:0] regexconf_buf_data;
 wire regexconf_buf_valid;
@@ -1330,8 +1336,6 @@ fifo_generator_1byte_sync
 );
 
 
-assign before_get_ready = condin_ready & value_frompred_ready;
-
 nukv_fifogen #(
     .DATA_SIZE(MEMORY_WIDTH),
     .ADDR_BITS(8)
@@ -1340,9 +1344,9 @@ nukv_fifogen #(
     .rst(rst),
     
     .s_axis_tdata(value_frompred_data),
-    .s_axis_tvalid(value_frompred_valid & before_get_ready & regexin_prebuf_ready),
-    .s_axis_tready(value_frompred_ready),
-    
+    .s_axis_tvalid(value_frompred_valid & value_frompred_ready),
+    .s_axis_tready(before_get_ready),
+
     .m_axis_tdata(value_frompred_b_data),
     .m_axis_tvalid(value_frompred_b_valid),
     .m_axis_tready(value_frompred_b_ready)
@@ -1358,7 +1362,7 @@ nukv_fifogen #(
     .rst(rst),
     
     .s_axis_tdata(value_frompred_drop),
-    .s_axis_tvalid(value_frompred_last & value_frompred_valid & before_get_ready),
+    .s_axis_tvalid(value_frompred_valid & value_frompred_ready & value_frompred_last ),
     .s_axis_tready(condin_ready),
     
     .m_axis_tdata(cond_drop),
@@ -1378,6 +1382,8 @@ wire read_decision;
 assign decision_is_valid = cond_valid & regexout_valid;
 assign decision_is_drop = cond_drop | ~regexout_data;
 assign cond_ready = read_decision & decision_is_valid;
+assign regexout_ready = read_decision & decision_is_valid;
+
 
 nukv_Value_Get #(.SUPPORT_SCANS(SUPPORT_SCANS)) 
 	valuegetter
@@ -1425,7 +1431,7 @@ reg[191:0] data_aux;
 
 
    // -------------------------------------------------
-   /* 
+   /* */
 
 
    wire [35:0] 				    control0, control1;
@@ -1452,7 +1458,7 @@ reg[191:0] data_aux;
         
         old_scan_mode <= scan_mode_on;
 
-      data_aux <= {value_read_data[0 +: 96], upd_rdcmd_data [32+:6],upd_rdcmd_data[0+:26]};
+      //data_aux <= {value_read_data[0 +: 96], upd_rdcmd_data [32+:6],upd_rdcmd_data[0+:26]};
       
       
       debug_r[0] <=  s_axis_tvalid  ;
@@ -1524,9 +1530,11 @@ reg[191:0] data_aux;
       //debug_r[58] <= malloc_valid;
 
       //debug_r[64 +: 32] <= {malloc_error_state};
-      //debug_r[64 +: 6] <= {regexout_ready, regexout_valid, cond_ready, cond_valid, regexin_prebuf_ready, (value_frompred_valid & value_frompred_ready & regexin_prebuf_ready)};
 
-      //debug_r[128 +: 128] <= data_aux;
+      //                        71                       70                    69              68           67          66              65          64  
+      debug_r[64 +: 8] <= {value_frompred_b_ready,value_frompred_b_valid,regexout_ready, regexout_valid, cond_ready, cond_valid, regexin_ready, regexin_valid};
+
+      debug_r[128 +: 128] <= data_aux;
 
 
       

@@ -58,6 +58,7 @@ module rem_top_ff #(parameter CHAR_COUNT=16, DELIMITER=0, STATE_COUNT=4)
   reg [STATE_COUNT*(CHAR_COUNT)-1:0] config_state_pred;
   reg [STATE_COUNT*STATE_COUNT-1:0] config_state_act;  
 
+  reg restart;
   reg wait_new;
   reg wait_conf;
   
@@ -164,6 +165,7 @@ module rem_top_ff #(parameter CHAR_COUNT=16, DELIMITER=0, STATE_COUNT=4)
 
         wait_new <= 1;
         wait_conf <= 1;
+        restart <= 0;
         need_purge <= 0;
 
         input_ready <= 1;
@@ -184,8 +186,10 @@ module rem_top_ff #(parameter CHAR_COUNT=16, DELIMITER=0, STATE_COUNT=4)
   		end
   		else begin
 
-        if (softRst) begin
+        if (softRst | restart) begin
           wait_conf <= 1;
+          wait_new <= 1;
+          restart <= 0;
         end
 
         input_wasvalid <= input_valid;
@@ -231,7 +235,7 @@ module rem_top_ff #(parameter CHAR_COUNT=16, DELIMITER=0, STATE_COUNT=4)
           input_ready <= 1;
         end
 
-        if (wait_conf==0) begin
+        if (restart==0 && wait_conf==0) begin
 
           if (!input_ready && input_hasdata==1 && wait_new==1) begin
             byte_addr <= 2;
@@ -279,7 +283,7 @@ module rem_top_ff #(parameter CHAR_COUNT=16, DELIMITER=0, STATE_COUNT=4)
               end 
               else begin
                 byte_addr <= 0;
-                wait_new <= 1;
+                restart <= 1;
                 input_ready <= 1;  
                 need_purge <= 0;
               end
@@ -299,7 +303,7 @@ module rem_top_ff #(parameter CHAR_COUNT=16, DELIMITER=0, STATE_COUNT=4)
             else begin
               waiting_pred <= 0;
               byte_addr <= 0;
-              wait_new <= 1;
+              restart <= 1;
               input_ready <= 1;  
               need_purge <= 0;
             end
@@ -308,7 +312,7 @@ module rem_top_ff #(parameter CHAR_COUNT=16, DELIMITER=0, STATE_COUNT=4)
           if (!input_hasdata && output_valid==1 && waiting_pred==1) begin
             waiting_pred <= 0;
             byte_addr <= 0;
-            wait_new <= 1;
+            restart <= 1;
             input_ready <= 1;  
             need_purge <= 0;
           end
@@ -320,7 +324,7 @@ module rem_top_ff #(parameter CHAR_COUNT=16, DELIMITER=0, STATE_COUNT=4)
 
             waiting_pred <= 0;
             byte_addr <= 0;
-            wait_new <= 1;
+            restart <= 1;
             input_ready <= 1;  
             need_purge <= 0;
           end
