@@ -1337,7 +1337,7 @@ zk_fifo_128x16 cmdoutbuf_inst (
                      
    nukv_fifogen #(
               .DATA_SIZE(16),
-              .ADDR_BITS(3)
+              .ADDR_BITS(4)
           ) output_net_meta_buffer (
                   .clk(clk),
                   .rst(reset),

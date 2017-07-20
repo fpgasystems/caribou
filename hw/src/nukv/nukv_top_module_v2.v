@@ -1292,9 +1292,9 @@ fifo_config_regex (
 );
 
 
-wire regxout_int_data;
-wire regxout_int_valid;
-wire regxout_int_ready;
+wire regexout_int_data;
+wire regexout_int_valid;
+wire regexout_int_ready;
 
 kvs_vs_RegexTop_FastClockInside regex_module (
     .clk(clk),
@@ -1312,9 +1312,9 @@ kvs_vs_RegexTop_FastClockInside regex_module (
     .config_valid(regexconf_buf_valid),
     .config_ready(regexconf_buf_ready),
 
-    .found_loc(regxout_int_data),
-    .found_valid(regxout_int_valid),
-    .found_ready(regxout_int_ready)
+    .found_loc(regexout_int_data),
+    .found_valid(regexout_int_valid),
+    .found_ready(regexout_int_ready)
 );
 
 //nukv_fifogen_async_clock #(
@@ -1326,9 +1326,9 @@ fifo_generator_1byte_sync
     .s_aclk(clk),
     .s_aresetn(~rst),
     
-    .s_axis_tdata(regxout_int_data),
-    .s_axis_tvalid(regxout_int_valid),
-    .s_axis_tready(regxout_int_ready),
+    .s_axis_tdata(regexout_int_data),
+    .s_axis_tvalid(regexout_int_valid),
+    .s_axis_tready(regexout_int_ready),
     
     .m_axis_tdata(regexout_data),
     .m_axis_tvalid(regexout_valid),
@@ -1431,7 +1431,7 @@ reg[191:0] data_aux;
 
 
    // -------------------------------------------------
-   /* */
+   /* */ 
 
 
    wire [35:0] 				    control0, control1;
@@ -1444,21 +1444,44 @@ reg[191:0] data_aux;
    
    reg old_scan_mode;
 
+   reg [31:0] condcnt;
+   reg [31:0] regxcnt;
+   reg [31:0] diffrescnt;
+
 
    always @(posedge clk) begin
 
         if (rst==1) begin
             input_counter<=0;
             old_scan_mode <= 0;
+            condcnt <= 0;
+            regxcnt <= 0;
         end else begin
             //if(debug_r[2:0]==3'b111) begin
                 input_counter<= input_counter+1;
             //end
-        end
+        
+
+          if (value_frompred_valid==1 && value_frompred_ready==1 && value_frompred_last==1 && condin_ready==1) begin
+            condcnt <= condcnt +1;          
+          end
+
+          if (regexout_int_valid==1 && regexout_int_ready==1) begin
+            regxcnt <= regxcnt+1;
+          end
+        end 
         
         old_scan_mode <= scan_mode_on;
 
-      //data_aux <= {value_read_data[0 +: 96], upd_rdcmd_data [32+:6],upd_rdcmd_data[0+:26]};
+        if (regxcnt > condcnt) begin
+          diffrescnt <= regxcnt - condcnt;
+        end
+        else begin
+          diffrescnt <= condcnt - regxcnt;
+        end
+
+      //data_aux <= {regexin_data[63:0],diffrescnt};
+      data_aux <= {value_read_data[0 +: 96], upd_rdcmd_data [32+:6],upd_rdcmd_data[0+:26]};
       
       
       debug_r[0] <=  s_axis_tvalid  ;
@@ -1502,8 +1525,8 @@ reg[191:0] data_aux;
       debug_r[33] <=    writeout_b_ready;
       debug_r[34] <=    value_b_valid;
       debug_r[35] <=    value_b_ready;
-      debug_r[36] <=    fromset_valid;
-      debug_r[37] <=    fromset_ready;
+      debug_r[36] <=    upd_wr_cmd_valid;
+      debug_r[37] <=    ~upd_wr_cmd_stall;
       debug_r[38] <=    b_rdcmd_valid;
       debug_r[39] <=    b_rdcmd_ready;
       debug_r[40] <=    b_rd_valid;

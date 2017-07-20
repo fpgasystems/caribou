@@ -16,7 +16,7 @@
 //---------------------------------------------------------------------------
 
 
-module kvs_vs_RegexTop_FastClockInside
+module kvs_vs_RegexTop_FastClockInside 
 (
 	input clk,
 	input fast_clk,
@@ -34,7 +34,7 @@ module kvs_vs_RegexTop_FastClockInside
 
 	output 		  found_loc,
 	output 		  found_valid,
-	output		  found_ready
+	input		  found_ready
 );
 
 parameter REGEX_COUNT_BITS = 4;

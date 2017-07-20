@@ -15,6 +15,7 @@
 //--  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //---------------------------------------------------------------------------
 
+
 module nukv_RequestSplit #(	
 	parameter META_WIDTH = 96,
 	parameter VALUE_WIDTH = 512,
@@ -138,7 +139,7 @@ always @ (posedge clk)
 
 					state <= ST_META;
 
-					if (s_axis_tdata[16 +: 8]==2 || s_axis_tdata[16 +: 8]==3 || s_axis_tdata[16 +: 8]==1) begin
+					if (s_axis_tdata[16 +: 8]!=0 && s_axis_tdata[16+8 +: 8]==0) begin
 						opcode <= SPECIAL_ARE_UPDATES==1 ? 3 : 1; // whether special inputs are treated as updates or inserts
 						keylen <= 1;
 						vallen <= s_axis_tdata[32 +: 8]-1;

@@ -15,6 +15,7 @@
 //--  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //---------------------------------------------------------------------------
 
+
 module nukv_Predicate_Eval #(
 	parameter MEMORY_WIDTH = 512,
     parameter META_WIDTH = 96,
@@ -249,9 +250,9 @@ module nukv_Predicate_Eval #(
 
     				if (slice_valid==1 && out_ready==1) begin
     					curr_offset <= curr_offset+64;
-                        curr_offset_p128 <= curr_offset_p128+64;
+                        curr_offset_p128 <= curr_offset+64+128;
 
-    					if (curr_offset_p128>=total_length || slice_last==1) begin
+    					if (curr_offset_p128>=total_length) begin
     						state <= ST_LAST;    						
                             if (value_valid==1 && value_ready==1) begin
                                 readInValue <= 0;

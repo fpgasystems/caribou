@@ -273,6 +273,132 @@ wire           upd_s_axis_write_tlast;
 wire           upd_s_axis_write_tvalid;
 wire          upd_s_axis_write_tready;  
 
+
+wire ht_s_buf_write_cmd_tvalid;
+wire ht_s_buf_write_cmd_tready;
+wire[71:0] ht_s_buf_write_cmd_tdata;
+
+
+wire        axis_toe_aux1_cc2dm_tvalid;
+wire        axis_toe_aux1_cc2dm_tready;
+wire[511:0]  axis_toe_aux1_cc2dm_tdata;
+wire[63:0]   axis_toe_aux1_cc2dm_tkeep;
+wire        axis_toe_aux1_cc2dm_tlast;
+wire axis_toe_aux1_cc2dm_tfull;
+
+wire        axis_toe_aux2_cc2dm_tvalid;
+wire        axis_toe_aux2_cc2dm_tready;
+wire[511:0]  axis_toe_aux2_cc2dm_tdata;
+wire[63:0]   axis_toe_aux2_cc2dm_tkeep;
+wire        axis_toe_aux2_cc2dm_tlast;
+wire axis_toe_aux2_cc2dm_tfull;
+
+
+wire toeTX_s_buf_read_cmd_tvalid;
+wire toeTX_s_buf_read_cmd_tready;
+wire[71:0] toeTX_s_buf_read_cmd_tdata;
+
+
+
+wire ptr_s_buf_write_cmd_tvalid;
+wire ptr_s_buf_write_cmd_tready;
+wire[71:0] ptr_s_buf_write_cmd_tdata;
+
+
+
+wire toeTX_s_buf_write_cmd_tvalid;
+wire toeTX_s_buf_write_cmd_tready;
+wire[71:0] toeTX_s_buf_write_cmd_tdata;
+
+
+wire bmap_s_buf_write_cmd_tvalid;
+wire bmap_s_buf_write_cmd_tready;
+wire[71:0] bmap_s_buf_write_cmd_tdata;
+
+
+
+wire ptr_s_buf_read_cmd_tvalid;
+wire ptr_s_buf_read_cmd_tready;
+wire[71:0] ptr_s_buf_read_cmd_tdata;
+
+wire bmap_s_buf_read_cmd_tvalid;
+wire bmap_s_buf_read_cmd_tready;
+wire[71:0] bmap_s_buf_read_cmd_tdata;
+
+
+wire ht_s_buf_read_cmd_tvalid;
+wire ht_s_buf_read_cmd_tready;
+wire[71:0] ht_s_buf_read_cmd_tdata;
+
+wire upd_s_buf_read_cmd_tvalid;
+wire upd_s_buf_read_cmd_tready;
+wire[71:0] upd_s_buf_read_cmd_tdata;
+
+wire upd_s_buf_write_cmd_tvalid;
+wire upd_s_buf_write_cmd_tready;
+wire[71:0] upd_s_buf_write_cmd_tdata;
+
+//-----------------------------------------------------------------------------------------------------------
+wire           bmap_s_axis_read_cmd_tvalid;
+wire          bmap_s_axis_read_cmd_tready;
+wire[71:0]     bmap_s_axis_read_cmd_tdata;
+
+//read status
+wire          bmap_m_axis_read_sts_tvalid;
+wire           bmap_m_axis_read_sts_tready;
+wire[7:0]     bmap_m_axis_read_sts_tdata;
+//read stream
+wire[511:0]    bmap_m_axis_read_tdata;
+wire[63:0]     bmap_m_axis_read_tkeep;
+wire          bmap_m_axis_read_tlast;
+wire          bmap_m_axis_read_tvalid;
+wire 		  bmap_m_axis_read_tready;
+
+//write commands
+wire           bmap_s_axis_write_cmd_tvalid;
+wire          bmap_s_axis_write_cmd_tready;
+wire[71:0]     bmap_s_axis_write_cmd_tdata;
+//write status
+wire          bmap_m_axis_write_sts_tvalid;
+wire           bmap_m_axis_write_sts_tready;
+wire[31:0]     bmap_m_axis_write_sts_tdata;
+//write stream
+wire[511:0]     bmap_s_axis_write_tdata;
+wire[63:0]      bmap_s_axis_write_tkeep;
+wire           bmap_s_axis_write_tlast;
+wire           bmap_s_axis_write_tvalid;
+wire          bmap_s_axis_write_tready;
+
+wire           ptr_s_axis_read_cmd_tvalid;
+wire          ptr_s_axis_read_cmd_tready;
+wire[71:0]     ptr_s_axis_read_cmd_tdata;
+//read status
+wire          ptr_m_axis_read_sts_tvalid;
+wire           ptr_m_axis_read_sts_tready;
+wire[7:0]     ptr_m_axis_read_sts_tdata;
+//read stream
+wire[511:0]    ptr_m_axis_read_tdata;
+wire[63:0]     ptr_m_axis_read_tkeep;
+wire          ptr_m_axis_read_tlast;
+wire          ptr_m_axis_read_tvalid;
+wire           ptr_m_axis_read_tready;
+
+//write commands
+wire           ptr_s_axis_write_cmd_tvalid;
+wire          ptr_s_axis_write_cmd_tready;
+wire[71:0]     ptr_s_axis_write_cmd_tdata;
+//write status
+wire          ptr_m_axis_write_sts_tvalid;
+wire           ptr_m_axis_write_sts_tready;
+wire[31:0]     ptr_m_axis_write_sts_tdata;
+//write stream
+wire[511:0]     ptr_s_axis_write_tdata;
+wire[63:0]      ptr_s_axis_write_tkeep;
+wire           ptr_s_axis_write_tlast;
+wire           ptr_s_axis_write_tvalid;
+wire          ptr_s_axis_write_tready;  
+
+
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
@@ -319,6 +445,48 @@ assign upd_s_axis_write_tkeep = 64'hFFFFFFFFFFFFFFFF;
 assign upd_s_axis_write_tvalid = upd_dramWrData_valid;
 assign upd_s_axis_write_tlast = 0;
 assign upd_dramWrData_stall = ~upd_s_axis_write_tready;
+
+assign bmap_m_axis_write_sts_tready = 1;
+assign bmap_m_axis_read_sts_tready = 1;
+
+assign bmap_s_axis_read_cmd_tvalid = bmap_rdcmd_valid;
+assign bmap_rdcmd_ready = bmap_s_axis_read_cmd_tready;
+assign bmap_s_axis_read_cmd_tdata = {10'b0000000000,bmap_rdcmd_data[23:0],6'b000000,2'b00,7'b0000001,9'b000000000,1'b0,bmap_rdcmd_data[32 +: 7],6'b000000};
+
+assign bmap_rd_data = bmap_m_axis_read_tdata;
+assign bmap_rd_valid = bmap_m_axis_read_tvalid;
+assign bmap_m_axis_read_tready = bmap_rd_ready;
+
+assign bmap_s_axis_write_cmd_tvalid = bmap_wrcmd_valid;
+assign bmap_wrcmd_ready = bmap_s_axis_write_cmd_tready;
+assign bmap_s_axis_write_cmd_tdata = {10'b0000000000,bmap_wrcmd_data[23:0],6'b000000,2'b00,7'b0000001,9'b000000000,1'b0,bmap_wrcmd_data[32 +: 7],6'b000000};
+
+assign bmap_s_axis_write_tdata = bmap_wr_data;
+assign bmap_s_axis_write_tkeep = 64'hFFFFFFFFFFFFFFFF;
+assign bmap_s_axis_write_tvalid = bmap_wr_valid;
+assign bmap_s_axis_write_tlast = 0;
+assign bmap_wr_ready = bmap_s_axis_write_tready;
+
+assign ptr_m_axis_write_sts_tready = 1;
+assign ptr_m_axis_read_sts_tready = 1;
+
+assign ptr_s_axis_read_cmd_tvalid = ptr_rdcmd_valid;
+assign ptr_rdcmd_ready = ptr_s_axis_read_cmd_tready;
+assign ptr_s_axis_read_cmd_tdata = {10'b0000000000,ptr_rdcmd_data[23:0],6'b000000,2'b00,7'b0000001,9'b000000000,8'h01,6'b000000};
+
+assign ptr_rd_data = ptr_m_axis_read_tdata;
+assign ptr_rd_valid = ptr_m_axis_read_tvalid;
+assign ptr_m_axis_read_tready = ptr_rd_ready;
+
+assign ptr_s_axis_write_cmd_tvalid = ptr_wrcmd_valid;
+assign ptr_wrcmd_ready = ptr_s_axis_write_cmd_tready;
+assign ptr_s_axis_write_cmd_tdata = {10'b0000000000,ptr_wrcmd_data[23:0],6'b000000,2'b00,7'b0000001,9'b000000000,8'h01,6'b000000};
+
+assign ptr_s_axis_write_tdata = ptr_wr_data;
+assign ptr_s_axis_write_tkeep = 64'hFFFFFFFFFFFFFFFF;
+assign ptr_s_axis_write_tvalid = ptr_wr_valid;
+assign ptr_s_axis_write_tlast = 0;
+assign ptr_wr_ready = ptr_s_axis_write_tready;
 
 
 
@@ -945,20 +1113,9 @@ axis_data_fifo_kvs_to_dm_512 cc_rxwrite_2 (
 );
 
 
-wire        axis_toe_aux1_cc2dm_tvalid;
-wire        axis_toe_aux1_cc2dm_tready;
-wire[511:0]  axis_toe_aux1_cc2dm_tdata;
-wire[63:0]   axis_toe_aux1_cc2dm_tkeep;
-wire        axis_toe_aux1_cc2dm_tlast;
-wire axis_toe_aux1_cc2dm_tfull;
 assign axis_toe_aux1_cc2dm_tready = ~axis_toe_aux1_cc2dm_tfull;
 
-wire        axis_toe_aux2_cc2dm_tvalid;
-wire        axis_toe_aux2_cc2dm_tready;
-wire[511:0]  axis_toe_aux2_cc2dm_tdata;
-wire[63:0]   axis_toe_aux2_cc2dm_tkeep;
-wire        axis_toe_aux2_cc2dm_tlast;
-wire axis_toe_aux2_cc2dm_tfull;
+
 assign axis_toe_aux2_cc2dm_tready = ~axis_toe_aux2_cc2dm_tfull;
 
 fifo_dm_to_kvs_s ht_read_fifo (
@@ -1040,13 +1197,15 @@ axis_data_fifo_kvs_to_dm_512 cc_rxread_2 (
   .axis_rd_data_count()  // output wire [31 : 0] axis_rd_data_count
 );
 
-wire ht_s_buf_read_cmd_tvalid;
-wire ht_s_buf_read_cmd_tready;
-wire[63:0] ht_s_buf_read_cmd_tdata;
 
-axis_data_fifo_cmd64 rxread_1_cmdbuf (
-  .s_aresetn(reset156_25_n),          // input wire s_axis_aresetn
-  .s_aclk(clk156_25),                // input wire s_axis_aclk
+
+nukv_fifogen #(
+	.DATA_SIZE(72),
+	.ADDR_BITS(6)
+	)
+   rxread_1_cmdbuf (
+  .rst(~reset156_25_n),          // input wire s_axis_aresetn
+  .clk(clk156_25),                // input wire s_axis_aclk
   .s_axis_tvalid(ht_s_axis_read_cmd_tvalid),            // input wire s_axis_tvalid
   .s_axis_tready(ht_s_axis_read_cmd_tready),            // output wire s_axis_tready
   .s_axis_tdata(ht_s_axis_read_cmd_tdata),              // input wire [63 : 0] s_axis_tdata
@@ -1101,13 +1260,14 @@ axi_read_kvs_datamover rxread_1_datamover (
   .m_axis_mm2s_tready(axis_s1_rxread_cc2dm_tready)                  // input wire m_axis_mm2s_tready
 );
 
-wire upd_s_buf_read_cmd_tvalid;
-wire upd_s_buf_read_cmd_tready;
-wire[63:0] upd_s_buf_read_cmd_tdata;
 
-axis_data_fifo_cmd64 rxread_2_cmdbuf (
-  .s_aresetn(reset156_25_n),          // input wire s_axis_aresetn
-  .s_aclk(clk156_25),                // input wire s_axis_aclk
+
+nukv_fifogen #(
+	.DATA_SIZE(72),
+	.ADDR_BITS(6)
+	) rxread_2_cmdbuf (
+  .rst(~reset156_25_n),          // input wire s_axis_aresetn
+  .clk(clk156_25),                // input wire s_axis_aclk
   .s_axis_tvalid(upd_s_axis_read_cmd_tvalid),            // input wire s_axis_tvalid
   .s_axis_tready(upd_s_axis_read_cmd_tready),            // output wire s_axis_tready
   .s_axis_tdata(upd_s_axis_read_cmd_tdata),              // input wire [63 : 0] s_axis_tdata
@@ -1163,13 +1323,12 @@ axi_read_kvs_datamover rxread_2_datamover (
 );
 
 
-wire ht_s_buf_write_cmd_tvalid;
-wire ht_s_buf_write_cmd_tready;
-wire[63:0] ht_s_buf_write_cmd_tdata;
-
-axis_data_fifo_cmd64 rxwrite_1_cmdbuf (
-  .s_aresetn(reset156_25_n),          // input wire s_axis_aresetn
-  .s_aclk(clk156_25),                // input wire s_axis_aclk
+nukv_fifogen #(
+	.DATA_SIZE(72),
+	.ADDR_BITS(6)
+	) rxwrite_1_cmdbuf (
+  .rst(~reset156_25_n),          // input wire s_axis_aresetn
+  .clk(clk156_25),                // input wire s_axis_aclk
   .s_axis_tvalid(ht_s_axis_write_cmd_tvalid),            // input wire s_axis_tvalid
   .s_axis_tready(ht_s_axis_write_cmd_tready),            // output wire s_axis_tready
   .s_axis_tdata(ht_s_axis_write_cmd_tdata),              // input wire [63 : 0] s_axis_tdata
@@ -1229,13 +1388,13 @@ axi_write_kvs_datamover rxwrite_1_datamover (
 
 
 
-wire upd_s_buf_write_cmd_tvalid;
-wire upd_s_buf_write_cmd_tready;
-wire[63:0] upd_s_buf_write_cmd_tdata;
 
-axis_data_fifo_cmd64 rxwrite_2_cmdbuf (
-  .s_aresetn(reset156_25_n),          // input wire s_axis_aresetn
-  .s_aclk(clk156_25),                // input wire s_axis_aclk
+nukv_fifogen #(
+	.DATA_SIZE(72),
+	.ADDR_BITS(6)
+	) rxwrite_2_cmdbuf (
+  .rst(~reset156_25_n),          // input wire s_axis_aresetn
+  .clk(clk156_25),                // input wire s_axis_aclk
   .s_axis_tvalid(upd_s_axis_write_cmd_tvalid),            // input wire s_axis_tvalid
   .s_axis_tready(upd_s_axis_write_cmd_tready),            // output wire s_axis_tready
   .s_axis_tdata(upd_s_axis_write_cmd_tdata),              // input wire [63 : 0] s_axis_tdata
@@ -1420,115 +1579,8 @@ axi_kvs_mem_interconnect rx_multiplexer_12 (
 //wire [3:0] c1_m_axi_arid_x;
 //assign c1_m_axi_arid = c1_m_axi_arid_x[0];
 
-wire [3:0] c1_s_axi_arid_x;
-assign c1_s_axi_arid = c1_s_axi_arid_x[0];
-
-
-//-----------------------------------------------------------------------------------------------------------
-wire           bmap_s_axis_read_cmd_tvalid;
-wire          bmap_s_axis_read_cmd_tready;
-wire[71:0]     bmap_s_axis_read_cmd_tdata;
-
-//read status
-wire          bmap_m_axis_read_sts_tvalid;
-wire           bmap_m_axis_read_sts_tready;
-wire[7:0]     bmap_m_axis_read_sts_tdata;
-//read stream
-wire[511:0]    bmap_m_axis_read_tdata;
-wire[63:0]     bmap_m_axis_read_tkeep;
-wire          bmap_m_axis_read_tlast;
-wire          bmap_m_axis_read_tvalid;
-wire 		  bmap_m_axis_read_tready;
-
-//write commands
-wire           bmap_s_axis_write_cmd_tvalid;
-wire          bmap_s_axis_write_cmd_tready;
-wire[71:0]     bmap_s_axis_write_cmd_tdata;
-//write status
-wire          bmap_m_axis_write_sts_tvalid;
-wire           bmap_m_axis_write_sts_tready;
-wire[31:0]     bmap_m_axis_write_sts_tdata;
-//write stream
-wire[511:0]     bmap_s_axis_write_tdata;
-wire[63:0]      bmap_s_axis_write_tkeep;
-wire           bmap_s_axis_write_tlast;
-wire           bmap_s_axis_write_tvalid;
-wire          bmap_s_axis_write_tready;
-
-wire           ptr_s_axis_read_cmd_tvalid;
-wire          ptr_s_axis_read_cmd_tready;
-wire[71:0]     ptr_s_axis_read_cmd_tdata;
-//read status
-wire          ptr_m_axis_read_sts_tvalid;
-wire           ptr_m_axis_read_sts_tready;
-wire[7:0]     ptr_m_axis_read_sts_tdata;
-//read stream
-wire[511:0]    ptr_m_axis_read_tdata;
-wire[63:0]     ptr_m_axis_read_tkeep;
-wire          ptr_m_axis_read_tlast;
-wire          ptr_m_axis_read_tvalid;
-wire           ptr_m_axis_read_tready;
-
-//write commands
-wire           ptr_s_axis_write_cmd_tvalid;
-wire          ptr_s_axis_write_cmd_tready;
-wire[71:0]     ptr_s_axis_write_cmd_tdata;
-//write status
-wire          ptr_m_axis_write_sts_tvalid;
-wire           ptr_m_axis_write_sts_tready;
-wire[31:0]     ptr_m_axis_write_sts_tdata;
-//write stream
-wire[511:0]     ptr_s_axis_write_tdata;
-wire[63:0]      ptr_s_axis_write_tkeep;
-wire           ptr_s_axis_write_tlast;
-wire           ptr_s_axis_write_tvalid;
-wire          ptr_s_axis_write_tready;  
-
-assign bmap_m_axis_write_sts_tready = 1;
-assign bmap_m_axis_read_sts_tready = 1;
-
-assign bmap_s_axis_read_cmd_tvalid = bmap_rdcmd_valid;
-assign bmap_rdcmd_ready = bmap_s_axis_read_cmd_tready;
-assign bmap_s_axis_read_cmd_tdata = {10'b0000000000,bmap_rdcmd_data[23:0],6'b000000,2'b00,7'b0000001,9'b000000000,1'b0,bmap_rdcmd_data[32 +: 7],6'b000000};
-
-assign bmap_rd_data = bmap_m_axis_read_tdata;
-assign bmap_rd_valid = bmap_m_axis_read_tvalid;
-assign bmap_m_axis_read_tready = bmap_rd_ready;
-
-assign bmap_s_axis_write_cmd_tvalid = bmap_wrcmd_valid;
-assign bmap_wrcmd_ready = bmap_s_axis_write_cmd_tready;
-assign bmap_s_axis_write_cmd_tdata = {10'b0000000000,bmap_wrcmd_data[23:0],6'b000000,2'b00,7'b0000001,9'b000000000,1'b0,bmap_wrcmd_data[32 +: 7],6'b000000};
-
-assign bmap_s_axis_write_tdata = bmap_wr_data;
-assign bmap_s_axis_write_tkeep = 64'hFFFFFFFFFFFFFFFF;
-assign bmap_s_axis_write_tvalid = bmap_wr_valid;
-assign bmap_s_axis_write_tlast = 0;
-assign bmap_wr_ready = bmap_s_axis_write_tready;
-
-assign ptr_m_axis_write_sts_tready = 1;
-assign ptr_m_axis_read_sts_tready = 1;
-
-assign ptr_s_axis_read_cmd_tvalid = ptr_rdcmd_valid;
-assign ptr_rdcmd_ready = ptr_s_axis_read_cmd_tready;
-assign ptr_s_axis_read_cmd_tdata = {10'b0000000000,ptr_rdcmd_data[23:0],6'b000000,2'b00,7'b0000001,9'b000000000,8'h01,6'b000000};
-
-assign ptr_rd_data = ptr_m_axis_read_tdata;
-assign ptr_rd_valid = ptr_m_axis_read_tvalid;
-assign ptr_m_axis_read_tready = ptr_rd_ready;
-
-assign ptr_s_axis_write_cmd_tvalid = ptr_wrcmd_valid;
-assign ptr_wrcmd_ready = ptr_s_axis_write_cmd_tready;
-assign ptr_s_axis_write_cmd_tdata = {10'b0000000000,ptr_wrcmd_data[23:0],6'b000000,2'b00,7'b0000001,9'b000000000,8'h01,6'b000000};
-
-assign ptr_s_axis_write_tdata = ptr_wr_data;
-assign ptr_s_axis_write_tkeep = 64'hFFFFFFFFFFFFFFFF;
-assign ptr_s_axis_write_tvalid = ptr_wr_valid;
-assign ptr_s_axis_write_tlast = 0;
-assign ptr_wr_ready = ptr_s_axis_write_tready;
-
-
-
- 
+//wire [3:0] c1_s_axi_arid_x;
+//assign c1_s_axi_arid = c1_s_axi_arid_x[0];
 
 
 
@@ -1556,7 +1608,7 @@ axis_data_fifo_kvs_to_dm_512 bmap_rxwrite (
 
 axis_data_fifo_tcp_to_dm_64 toeTX_rxwrite (
   .s_axis_aresetn(reset156_25_n),  // input wire s_axis_aresetn
-  .m_axis_aresetn(c0_aresetn_r),  // input wire m_axis_aresetn
+  .m_axis_aresetn(c1_aresetn_r),  // input wire m_axis_aresetn
   .s_axis_aclk(clk156_25),        // input wire s_axis_aclk
 
   .s_axis_tvalid(toeTX_s_axis_write_tvalid),    // input wire s_axis_tvalid
@@ -1674,13 +1726,14 @@ axis_data_fifo_kvs_to_dm_512 ptr_rxread (
   .axis_rd_data_count()  // output wire [31 : 0] axis_rd_data_count
 );
 
-wire bmap_s_buf_read_cmd_tvalid;
-wire bmap_s_buf_read_cmd_tready;
-wire[63:0] bmap_s_buf_read_cmd_tdata;
 
-axis_data_fifo_cmd64 rxread_bmap_cmdbuf (
-  .s_aresetn(reset156_25_n),          // input wire s_axis_aresetn
-  .s_aclk(clk156_25),                // input wire s_axis_aclk
+
+nukv_fifogen #(
+	.DATA_SIZE(72),
+	.ADDR_BITS(6)
+	) rxread_bmap_cmdbuf (
+  .rst(~reset156_25_n),          // input wire s_axis_aresetn
+  .clk(clk156_25),                // input wire s_axis_aclk
   .s_axis_tvalid(bmap_s_axis_read_cmd_tvalid),            // input wire s_axis_tvalid
   .s_axis_tready(bmap_s_axis_read_cmd_tready),            // output wire s_axis_tready
   .s_axis_tdata(bmap_s_axis_read_cmd_tdata),              // input wire [63 : 0] s_axis_tdata
@@ -1728,17 +1781,12 @@ axi_read_kvs_datamover rxread_bmap_datamover (
   .m_axis_mm2s_tready(axis_s3_rxread_cc2dm_tready)                  // input wire m_axis_mm2s_tready
 );
 
-
-wire toeTX_s_buf_read_cmd_tvalid;
-wire toeTX_s_buf_read_cmd_tready;
-wire[71:0] toeTX_s_buf_read_cmd_tdata;
-
 nukv_fifogen #(
 .DATA_SIZE(72),
-.ADDR_BITS(8)
+.ADDR_BITS(6)
 ) toe_readcmd_buf (
-    .clk(clk156_25),
-    .rst(~reset156_25_n),
+    .rst(~reset156_25_n),          // input wire s_axis_aresetn
+  	.clk(clk156_25),                // input wire s_axis_aclk
 	.s_axis_tvalid(toeTX_s_axis_read_cmd_tvalid),           
   	.s_axis_tready(toeTX_s_axis_read_cmd_tready),         
   	.s_axis_tdata(toeTX_s_axis_read_cmd_tdata),           
@@ -1764,7 +1812,7 @@ axi_read_tcp_datamover rxread_toeTX_datamover (
    
   .m_axis_mm2s_sts_tkeep(),            // output wire [0 : 0] m_axis_mm2s_sts_tkeep
   .m_axis_mm2s_sts_tlast(),            // output wire m_axis_mm2s_sts_tlast
-  //.m_axi_mm2s_arid(c1_s2_s_axi_arid),                        // output wire [3 : 0] m_axi_mm2s_arid
+  .m_axi_mm2s_arid(c1_s2_s_axi_arid),                        // output wire [3 : 0] m_axi_mm2s_arid
   .m_axi_mm2s_araddr(c1_s2_s_axi_araddr),                    // output wire [31 : 0] m_axi_mm2s_araddr
   .m_axi_mm2s_arlen(c1_s2_s_axi_arlen),                      // output wire [7 : 0] m_axi_mm2s_arlen
   .m_axi_mm2s_arsize(c1_s2_s_axi_arsize),                    // output wire [2 : 0] m_axi_mm2s_arsize
@@ -1789,13 +1837,13 @@ axi_read_tcp_datamover rxread_toeTX_datamover (
 
 
 
-wire ptr_s_buf_read_cmd_tvalid;
-wire ptr_s_buf_read_cmd_tready;
-wire[63:0] ptr_s_buf_read_cmd_tdata;
 
-axis_data_fifo_cmd64 rxread_ptr_cmdbuf (
-  .s_aresetn(reset156_25_n),          // input wire s_axis_aresetn
-  .s_aclk(clk156_25),                // input wire s_axis_aclk
+nukv_fifogen #(
+	.DATA_SIZE(72),
+	.ADDR_BITS(6)
+	) rxread_ptr_cmdbuf (
+  .rst(~reset156_25_n),          // input wire s_axis_aresetn
+  .clk(clk156_25),                // input wire s_axis_aclk
   .s_axis_tvalid(ptr_s_axis_read_cmd_tvalid),            // input wire s_axis_tvalid
   .s_axis_tready(ptr_s_axis_read_cmd_tready),            // output wire s_axis_tready
   .s_axis_tdata(ptr_s_axis_read_cmd_tdata),              // input wire [63 : 0] s_axis_tdata
@@ -1844,13 +1892,13 @@ axi_read_kvs_datamover rxread_ptr_datamover (
 );
 
 
-wire bmap_s_buf_write_cmd_tvalid;
-wire bmap_s_buf_write_cmd_tready;
-wire[63:0] bmap_s_buf_write_cmd_tdata;
 
-axis_data_fifo_cmd64 rxwrite_bmap_cmdbuf (
-  .s_aresetn(reset156_25_n),          // input wire s_axis_aresetn
-  .s_aclk(clk156_25),                // input wire s_axis_aclk
+nukv_fifogen #(
+	.DATA_SIZE(72),
+	.ADDR_BITS(6)
+	) rxwrite_bmap_cmdbuf (
+  .rst(~reset156_25_n),          // input wire s_axis_aresetn
+  .clk(clk156_25),                // input wire s_axis_aclk
   .s_axis_tvalid(bmap_s_axis_write_cmd_tvalid),            // input wire s_axis_tvalid
   .s_axis_tready(bmap_s_axis_write_cmd_tready),            // output wire s_axis_tready
   .s_axis_tdata(bmap_s_axis_write_cmd_tdata),              // input wire [63 : 0] s_axis_tdata
@@ -1901,17 +1949,13 @@ axi_write_kvs_datamover rxwrite_bmap_datamover (
 );
 
 
-wire toeTX_s_buf_write_cmd_tvalid;
-wire toeTX_s_buf_write_cmd_tready;
-wire[71:0] toeTX_s_buf_write_cmd_tdata;
-
 
 nukv_fifogen #(
 .DATA_SIZE(72),
-.ADDR_BITS(8)
+.ADDR_BITS(6)
 ) toe_writecmd_buf (
-    .clk(clk156_25),
-    .rst(~reset156_25_n),
+    .rst(~reset156_25_n),          // input wire s_axis_aresetn
+  	.clk(clk156_25),                // input wire s_axis_aclk
 	.s_axis_tvalid(toeTX_s_axis_write_cmd_tvalid),           
   	.s_axis_tready(toeTX_s_axis_write_cmd_tready),         
   	.s_axis_tdata(toeTX_s_axis_write_cmd_tdata),           
@@ -1936,7 +1980,7 @@ axi_write_tcp_datamover txwrite_toeTX_datamover (
    
   .m_axis_s2mm_sts_tkeep(),            // output wire [0 : 0] m_axis_s2mm_sts_tkeep
   .m_axis_s2mm_sts_tlast(),            // output wire m_axis_s2mm_sts_tlast
-  //.m_axi_s2mm_awid(c1_s2_s_axi_awid),                        // output wire [3 : 0] m_axi_s2mm_awid
+  .m_axi_s2mm_awid(c1_s2_s_axi_awid),                        // output wire [3 : 0] m_axi_s2mm_awid
   .m_axi_s2mm_awaddr(c1_s2_s_axi_awaddr),                    // output wire [31 : 0] m_axi_s2mm_awaddr
   .m_axi_s2mm_awlen(c1_s2_s_axi_awlen),                      // output wire [7 : 0] m_axi_s2mm_awlen
   .m_axi_s2mm_awsize(c1_s2_s_axi_awsize),                    // output wire [2 : 0] m_axi_s2mm_awsize
@@ -1964,13 +2008,12 @@ axi_write_tcp_datamover txwrite_toeTX_datamover (
 
 
 
-wire ptr_s_buf_write_cmd_tvalid;
-wire ptr_s_buf_write_cmd_tready;
-wire[63:0] ptr_s_buf_write_cmd_tdata;
-
-axis_data_fifo_cmd64 rxwrite_ptr_cmdbuf (
-  .s_aresetn(reset156_25_n),          // input wire s_axis_aresetn
-  .s_aclk(clk156_25),                // input wire s_axis_aclk
+nukv_fifogen #(
+	.DATA_SIZE(72),
+	.ADDR_BITS(6)
+	) rxwrite_ptr_cmdbuf (
+  .rst(~reset156_25_n),          // input wire s_axis_aresetn
+  .clk(clk156_25),                // input wire s_axis_aclk
   .s_axis_tvalid(ptr_s_axis_write_cmd_tvalid),            // input wire s_axis_tvalid
   .s_axis_tready(ptr_s_axis_write_cmd_tready),            // output wire s_axis_tready
   .s_axis_tdata(ptr_s_axis_write_cmd_tdata),              // input wire [63 : 0] s_axis_tdata
@@ -2107,7 +2150,7 @@ axi_kvs_mem_interconnect_3 rx_multiplexer_345 (
 
     .S02_AXI_ARESET_OUT_N(),  // output wire S00_AXI_ARESET_OUT_N
     .S02_AXI_ACLK(c0_ui_clk),                  // input wire S00_AXI_ACLK
-    .S02_AXI_AWID(1'b0),//c0_s5_s_axi_awid),                  // input wire [0 : 0] S00_AXI_AWID
+    .S02_AXI_AWID(c0_s5_s_axi_awid),                  // input wire [0 : 0] S00_AXI_AWID
     .S02_AXI_AWADDR(c0_s5_s_axi_awaddr),              // input wire [31 : 0] S00_AXI_AWADDR
     .S02_AXI_AWLEN(c0_s5_s_axi_awlen),                // input wire [7 : 0] S00_AXI_AWLEN
     .S02_AXI_AWSIZE(c0_s5_s_axi_awsize),              // input wire [2 : 0] S00_AXI_AWSIZE
@@ -2127,7 +2170,7 @@ axi_kvs_mem_interconnect_3 rx_multiplexer_345 (
     .S02_AXI_BRESP(c0_s5_s_axi_bresp),                // output wire [1 : 0] S00_AXI_BRESP
     .S02_AXI_BVALID(c0_s5_s_axi_bvalid),              // output wire S00_AXI_BVALID
     .S02_AXI_BREADY(c0_s5_s_axi_bready),              // input wire S00_AXI_BREADY
-    .S02_AXI_ARID(1'b0),//c0_s5_s_axi_arid),                  // input wire [0 : 0] S00_AXI_ARID
+    .S02_AXI_ARID(c0_s5_s_axi_arid),                  // input wire [0 : 0] S00_AXI_ARID
     .S02_AXI_ARADDR(c0_s5_s_axi_araddr),              // input wire [31 : 0] S00_AXI_ARADDR
     .S02_AXI_ARLEN(c0_s5_s_axi_arlen),                // input wire [7 : 0] S00_AXI_ARLEN
     .S02_AXI_ARSIZE(c0_s5_s_axi_arsize),              // input wire [2 : 0] S00_AXI_ARSIZE
