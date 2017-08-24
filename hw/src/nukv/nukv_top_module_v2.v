@@ -24,7 +24,7 @@ module nukv_Top_Module_v2 #(
 	parameter MEMORY_WIDTH = 512,
 	parameter KEY_WIDTH = 128,
 	parameter HEADER_WIDTH = 42,	
-    parameter HASHTABLE_MEM_SIZE = 23,
+    parameter HASHTABLE_MEM_SIZE = 24,
     parameter VALUESTORE_MEM_SIZE = 25,
     parameter SUPPORT_SCANS = 1,
     parameter DECOMPRESS_ENGINES = 0,
@@ -295,6 +295,7 @@ wire        scan_rdcmd_ready;
 wire scan_kickoff;
 wire scan_reading;
 reg scan_mode_on;
+reg rst_regex_after_scan;
 wire [31:0] scan_readsissued;
 reg [31:0] scan_readsprocessed;
 wire scan_valid;
@@ -353,11 +354,11 @@ reg rst_faster = 1;
 
 PLLE2_BASE #(
   .BANDWIDTH("OPTIMIZED"),  // OPTIMIZED, HIGH, LOW
-  .CLKFBOUT_MULT(8),        // Multiply value for all CLKOUT, (2-64)
+  .CLKFBOUT_MULT(10),        // Multiply value for all CLKOUT, (2-64)
   .CLKFBOUT_PHASE(0.0),     // Phase offset in degrees of CLKFB, (-360.000-360.000).
   .CLKIN1_PERIOD(6.400),      // Input clock period in ns to ps resolution (i.e. 33.333 is 30 MHz).
   // CLKOUT0_DIVIDE - CLKOUT5_DIVIDE: Divide amount for each CLKOUT (1-128)
-  .CLKOUT0_DIVIDE(4),
+  .CLKOUT0_DIVIDE(5),
   .CLKOUT1_DIVIDE(1),
   .CLKOUT2_DIVIDE(1),
   .CLKOUT3_DIVIDE(1),
@@ -647,7 +648,7 @@ wire ht_read_ready_int;
 
 nukv_fifogen #(
     .DATA_SIZE(VALUE_WIDTH),
-    .ADDR_BITS(6)
+    .ADDR_BITS(7)
 ) fifo_ht_rd (
     .clk(clk),
     .rst(rst),
@@ -656,13 +657,17 @@ nukv_fifogen #(
     .s_axis_tvalid(ht_rd_isvalid),
     .s_axis_tready(ht_rd_ready),
     .s_axis_talmostfull(ht_rd_almostfull),
+
+    .m_axis_tdata(ht_buf_rd_data),
+    .m_axis_tvalid(ht_buf_rd_valid),
+    .m_axis_tready(ht_buf_rd_ready)
     
-    .m_axis_tdata(ht_read_data_int),
-    .m_axis_tvalid(ht_read_valid_int),
-    .m_axis_tready(ht_read_ready_int)
+    //.m_axis_tdata(ht_read_data_int),
+    //.m_axis_tvalid(ht_read_valid_int),
+    //.m_axis_tready(ht_read_ready_int)
 );
 
-
+/*
 nukv_fifogen #(
     .DATA_SIZE(VALUE_WIDTH),
     .ADDR_BITS(6)
@@ -678,6 +683,7 @@ nukv_fifogen #(
     .m_axis_tvalid(ht_buf_rd_valid),
     .m_axis_tready(ht_buf_rd_ready)
 );
+*/
 
 nukv_fifogen #(
     .DATA_SIZE(KEY_WIDTH+META_WIDTH+64),
@@ -949,8 +955,12 @@ always @(posedge clk) begin
 		if (rst) begin
 			scan_mode_on <= 0;		
 			scan_readsprocessed <= 0;
+			rst_regex_after_scan <= 0;
 		end
 		else begin
+		      rst_regex_after_scan <= 0;
+		
+		  
 			if (scan_mode_on==0 && scan_reading==1) begin
 				scan_mode_on <= 1;
 				scan_readsprocessed <= 0;
@@ -962,12 +972,14 @@ always @(posedge clk) begin
 
 			if (scan_mode_on==1 && scan_reading==0 && scan_readsprocessed==scan_readsissued) begin
 				scan_mode_on <= 0;
+				rst_regex_after_scan <= 1;
 			end
 		end
 
 
 	end else begin
 		scan_mode_on <= 0;
+		rst_regex_after_scan <= 0;
 	end
 end
 
@@ -1083,7 +1095,7 @@ always @(posedge clk) begin
 	else begin
 		
 
-        if (scan_readsissued>0 && scan_readsissued-scan_readsprocessed> (IS_SIM==1 ? 64 : 128)) begin
+        if (scan_readsissued>0 && scan_readsissued-scan_readsprocessed> (IS_SIM==1 ? 64 : 200)) begin
             scan_pause <= 1;            
         end else begin
             scan_pause <= 0;
@@ -1103,7 +1115,7 @@ assign upd_rd_read = upd_ready & ~upd_rd_empty;
 
 nukv_fifogen #(
     .DATA_SIZE(VALUE_WIDTH),
-    .ADDR_BITS(7)
+    .ADDR_BITS(9)
 ) fifo_valuedatafrommemory (
     .clk(clk),
     .rst(rst),
@@ -1284,8 +1296,8 @@ fifo_config_regex (
     .s_axis_tvalid(regexconf_valid),
     .s_axis_tready(regexconf_ready),
     .s_axis_tlast(1'b1),
-    
-    .m_axis_tdata(regexconf_buf_data),
+   
+     .m_axis_tdata(regexconf_buf_data),
     .m_axis_tvalid(regexconf_buf_valid),
     .m_axis_tready(regexconf_buf_ready),
     .m_axis_tlast()
@@ -1298,7 +1310,7 @@ wire regexout_int_ready;
 
 kvs_vs_RegexTop_FastClockInside regex_module (
     .clk(clk),
-    .rst(rst),
+    .rst(rst | rst_regex_after_scan),
 
     .fast_clk(clk_faster),
     .fast_rst(rst_faster),
@@ -1431,7 +1443,7 @@ reg[191:0] data_aux;
 
 
    // -------------------------------------------------
-   /* */ 
+   /*  */
 
 
    wire [35:0] 				    control0, control1;
@@ -1481,7 +1493,7 @@ reg[191:0] data_aux;
         end
 
       //data_aux <= {regexin_data[63:0],diffrescnt};
-      data_aux <= {value_read_data[0 +: 96], upd_rdcmd_data [32+:6],upd_rdcmd_data[0+:26]};
+      data_aux <= {value_read_data[0 +: 64], s_axis_tdata[63:0]};
       
       
       debug_r[0] <=  s_axis_tvalid  ;
@@ -1510,7 +1522,7 @@ reg[191:0] data_aux;
       
       debug_r[21] <=    p_rd_valid;
       debug_r[22] <=    p_rd_ready;
-      debug_r[23] <=    (b_rd_data==0 ? 0 : 1);            
+      //debug_r[23] <=    (b_rd_data==0 ? 0 : 1);            
       
       
       debug_r[24] <=    free_valid;
@@ -1556,7 +1568,9 @@ reg[191:0] data_aux;
 
       //                        71                       70                    69              68           67          66              65          64  
       debug_r[64 +: 8] <= {value_frompred_b_ready,value_frompred_b_valid,regexout_ready, regexout_valid, cond_ready, cond_valid, regexin_ready, regexin_valid};
-
+    
+      //debug_r[96 +: 16] <= diffrescnt[15:0];
+        
       debug_r[128 +: 128] <= data_aux;
 
 

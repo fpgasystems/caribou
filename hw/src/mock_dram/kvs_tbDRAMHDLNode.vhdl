@@ -63,6 +63,21 @@ architecture packed of kvs_tbDRAMHDLNode is
 
   type stateType is (IDLE, INCREMENT, X1, X2, X3);
   
+  component nukv_fifogen
+     GENERIC (
+      ADDR_BITS : integer;
+      DATA_SIZE : integer
+     ) ;
+    PORT (
+    clk : IN STD_LOGIC;
+    rst : IN STD_LOGIC;
+    s_axis_tdata : IN STD_LOGIC_VECTOR(DATA_SIZE-1 DOWNTO 0);
+    s_axis_tvalid: IN STD_LOGIC;
+    s_axis_tready : OUT STD_LOGIC;
+    m_axis_tdata : OUT STD_LOGIC_VECTOR(DATA_SIZE-1 DOWNTO 0);      
+    m_axis_tvalid : OUT STD_LOGIC;
+    m_axis_tready : IN STD_LOGIC
+          );END component;
   
   component fifogen_dram_data_in
     PORT (
@@ -84,7 +99,7 @@ architecture packed of kvs_tbDRAMHDLNode is
       wr_en : IN STD_LOGIC;
       rd_en : IN STD_LOGIC;
       dout : OUT STD_LOGIC_VECTOR(511 DOWNTO 0);
-      full : OUT STD_LOGIC;
+      full : OUT STD_LOGIC;     
       empty : OUT STD_LOGIC
       );END component;
   
@@ -131,8 +146,9 @@ architecture packed of kvs_tbDRAMHDLNode is
   signal rdCmdPop : std_logic;
   signal rdCmdData : std_logic_vector(DRAM_CMD_WIDTH-1 downto 0);
 
-  signal rdEmpty : std_logic_vector((DRAM_DATA_WIDTH/512)-1 downto 0);
-  signal rdFull : std_logic_vector((DRAM_DATA_WIDTH/512)-1 downto 0);
+  signal rdNotEmpty : std_logic_vector((DRAM_DATA_WIDTH/512)-1 downto 0);
+  signal rdNotFull : std_logic_vector((DRAM_DATA_WIDTH/512)-1 downto 0);
+  signal rdProgFull : std_logic_vector((DRAM_DATA_WIDTH/512)-1 downto 0);
   signal rdData : std_logic_vector(DRAM_DATA_WIDTH-1 downto 0);
   signal rdPush : std_logic;
 
@@ -149,8 +165,8 @@ architecture packed of kvs_tbDRAMHDLNode is
   
   signal rstBuf : std_logic;
   
-  signal shiftreg : std_logic_vector(513*7-1 downto 0);
-  signal shiftvalid : std_logic;
+  --signal shiftreg : std_logic_vector(513*7-1 downto 0);
+  --signal shiftvalid : std_logic;
 
 --attribute definition
   attribute max_fanout: string;
@@ -171,21 +187,22 @@ begin  -- packed
       rdCmdEmpty
       );
 
-  shiftvalid <= shiftreg(513*7-1);
-  rd_data_out: for X in (DRAM_DATA_WIDTH/512)-1 downto 0 generate
-    rd_data_i : fifogen_dram_data_out
+  --shiftvalid <= shiftreg(513*7-1);
+  --rd_data_out: for X in (DRAM_DATA_WIDTH/512)-1 downto 0 generate
+    rd_data_i : nukv_fifogen
+      generic map (8,512)
       port map (
         clk, rst,
-        shiftreg(513*7-2 downto 513*7-513), shiftvalid,
-        --rdData(512*(X+1)-1 downto 512*X), rdPush,
-        dataread, dramRdData_data(512*(X+1)-1 downto 512*X),
-        rdFull(X), rdEmpty(X)
+        --shiftreg(513*7-2 downto 513*7-513), shiftvalid,
+        rdData(511 downto 0), rdPush, rdNotFull(0),
+        dramRdData_data(511 downto 0),  rdNotEmpty(0), dataread
+        
         );
     
-  end generate rd_data_out;
+  --end generate rd_data_out;
   
   dataread <= dramRdData_read ; --when clocker<8 else '0'; 
-  dramRdData_empty <= rdEmpty(0); -- when clocker<8 else '1';
+  dramRdData_empty <= not rdNotEmpty(0); -- when clocker<8 else '1';
   
   wr_cmd_in : fifogen_dram_cmd_in
     port map (
@@ -235,7 +252,7 @@ begin  -- packed
         wrPop <= '0';
         wrCmdPop <= '0';
         
-        shiftreg <= (others => '0');
+        --shiftreg <= (others => '0');
         
         clocker <= (others => '0');
         
@@ -243,8 +260,8 @@ begin  -- packed
       
         clocker <= clocker+1;
 	
-        shiftreg(513*7-1 downto 513) <= shiftreg(513*6-1 downto 0);
-        shiftreg(512 downto 0) <= rdPush & rdData;
+        --shiftreg(513*7-1 downto 513) <= shiftreg(513*6-1 downto 0);
+        --shiftreg(512 downto 0) <= rdPush & rdData;
         -----------------------------------------------------------------------
         -- READ ---------------------------------------------------------------
         -----------------------------------------------------------------------
@@ -263,8 +280,8 @@ begin  -- packed
             rdPush <= '0';
             rdCmdPop <= '0';
             
-            --if rdFull(0)='0' then
-            if (rdFull(0)='0' or rdFull(0)='1') then
+            --if rdNotFull(0)='0' then
+            if (rdNotFull(0)='1') then
               rdPush <= '1';
               readAddr <= readAddr+1;
               readCnt <= readCnt-1;

@@ -15,7 +15,7 @@
 //--  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //---------------------------------------------------------------------------
 
-module rem_top_ff #(parameter CHAR_COUNT=16, DELIMITER=0, STATE_COUNT=4)
+module rem_top_ff #(parameter CHAR_COUNT=32, DELIMITER=0, STATE_COUNT=4)
     (
     clk,
     rst, //active high
@@ -45,6 +45,8 @@ module rem_top_ff #(parameter CHAR_COUNT=16, DELIMITER=0, STATE_COUNT=4)
   output reg output_match; 
   output reg [15:0] output_index; 
 
+  reg scan_mode;
+    
   reg input_wasvalid;
   reg input_wasready;
   reg input_hasdata;
@@ -182,15 +184,23 @@ module rem_top_ff #(parameter CHAR_COUNT=16, DELIMITER=0, STATE_COUNT=4)
         state_inact_delays <= 0;
 
         waiting_pred <= 0;
+        
+        scan_mode <= 0;
 
   		end
   		else begin
 
-        if (softRst | restart) begin
-          wait_conf <= 1;
+        if (restart) begin
+          wait_conf <= 1 & (~scan_mode);
           wait_new <= 1;
           restart <= 0;
         end
+
+        if (softRst) begin
+          wait_conf <= 1;
+          wait_new <= 1;
+          restart <= 0;
+        end        
 
         input_wasvalid <= input_valid;
         input_wasready <= input_ready;
@@ -233,6 +243,8 @@ module rem_top_ff #(parameter CHAR_COUNT=16, DELIMITER=0, STATE_COUNT=4)
 
           wait_conf <= 0;
           input_ready <= 1;
+          
+          scan_mode <= input_datareg[511];
         end
 
         if (restart==0 && wait_conf==0) begin

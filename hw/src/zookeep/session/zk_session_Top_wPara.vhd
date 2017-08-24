@@ -452,7 +452,7 @@ evdataOutValid <= not evdataOutEmpty;
   outData <= selbufData;
   outMeta <= selbufMeta;
   outLast <= '1' when outLength=0 else '0';
-  selbufNext <= '1' when (outFirst='1' and selbufValid='0') or outLast='1' else '0';
+  selbufNext <= '1' when (outFirst='1' and selbufValid='0') or (outLast='1' and  outValid='1') else '0';
   
   get_packets: process(clk)
   begin

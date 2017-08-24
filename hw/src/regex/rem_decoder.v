@@ -15,6 +15,7 @@
 //--  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //---------------------------------------------------------------------------
 
+
 module rem_decoder #(parameter CHAR_COUNT=16, DELIMITER=0)
     (
     clk,

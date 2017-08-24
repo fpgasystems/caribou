@@ -77,8 +77,6 @@ zk_axis_combine_2x128 your_instance_name (
   .M00_AXIS_TLAST(M00_AXIS_TLAST),                      // output wire M00_AXIS_TLAST
   .S00_ARB_REQ_SUPPRESS(S00_ARB_REQ_SUPPRESS),          // input wire S00_ARB_REQ_SUPPRESS
   .S01_ARB_REQ_SUPPRESS(S01_ARB_REQ_SUPPRESS),          // input wire S01_ARB_REQ_SUPPRESS
-  .S00_FIFO_DATA_COUNT(S00_FIFO_DATA_COUNT),            // output wire [31 : 0] S00_FIFO_DATA_COUNT
-  .S01_FIFO_DATA_COUNT(S01_FIFO_DATA_COUNT),            // output wire [31 : 0] S01_FIFO_DATA_COUNT
   .M00_SPARSE_TKEEP_REMOVED(M00_SPARSE_TKEEP_REMOVED)  // output wire M00_SPARSE_TKEEP_REMOVED
 );
 // INST_TAG_END ------ End INSTANTIATION Template ---------

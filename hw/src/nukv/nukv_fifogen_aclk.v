@@ -15,6 +15,7 @@
 //--  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //---------------------------------------------------------------------------
 
+
 module nukv_fifogen_async_clock #(
     parameter ADDR_BITS=5,      // number of bits of address bus
     parameter DATA_SIZE=16     // number of bits of data bus

@@ -1195,8 +1195,8 @@ function integer clogb2 (input integer size);
 
   mig_axi_mm_dual #
     (
-     
-/*     .C0_TCQ                              (C0_TCQ),
+     /****
+    .C0_TCQ                              (C0_TCQ),
      .C0_ADDR_CMD_MODE                    (C0_ADDR_CMD_MODE),
      .C0_AL                               (C0_AL),
      .C0_PAYLOAD_WIDTH                    (C0_PAYLOAD_WIDTH),
@@ -1309,7 +1309,7 @@ function integer clogb2 (input integer size);
      .C0_CALIB_BA_ADD                     (C0_CALIB_BA_ADD),
      .C0_SLOT_0_CONFIG                    (C0_SLOT_0_CONFIG),
      .C0_SLOT_1_CONFIG                    (C0_SLOT_1_CONFIG),
-      //.C0_MEM_ADDR_ORDER                   ("TG_TEST"),//(C0_MEM_ADDR_ORDER),
+      .C0_MEM_ADDR_ORDER                  (C0_MEM_ADDR_ORDER),
      .C0_USE_CS_PORT                      (C0_USE_CS_PORT),
      .C0_USE_DM_PORT                      (C0_USE_DM_PORT),
      .C0_USE_ODT_PORT                     (C0_USE_ODT_PORT),
@@ -1511,7 +1511,8 @@ function integer clogb2 (input integer size);
       
      
       
-     .RST_ACT_LOW                      (RST_ACT_LOW)*/
+     .RST_ACT_LOW                      (RST_ACT_LOW)
+     ****/
      )
     u_mig_axi_mm_dual
       (
@@ -1597,7 +1598,7 @@ function integer clogb2 (input integer size);
        .c0_sys_clk_i                       (c0_sys_clk_i),
 // Reference Clock Ports
        .clk_ref_i                      (clk_ref_i),
-       .device_temp_i                  (device_temp_i),
+       //.device_temp_i                  (device_temp_i),
       
        
 // Memory interface ports

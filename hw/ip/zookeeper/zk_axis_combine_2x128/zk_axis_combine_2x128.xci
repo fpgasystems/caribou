@@ -40,7 +40,7 @@
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.S00_AXIS_TDATA_NUM_BYTES">16</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.C_S00_AXIS_IS_ACLK_ASYNC">0</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.C_S00_AXIS_ACLK_RATIO">12</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.S00_AXIS_FIFO_MODE">1_(Normal)</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.S00_AXIS_FIFO_MODE">0_(Disabled)</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.C_S00_AXIS_FIFO_DEPTH">128</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.C_M01_AXIS_REG_CONFIG">0</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.M01_AXIS_TDATA_NUM_BYTES">1</spirit:configurableElementValue>
@@ -52,7 +52,7 @@
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.S01_AXIS_TDATA_NUM_BYTES">16</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.C_S01_AXIS_IS_ACLK_ASYNC">0</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.C_S01_AXIS_ACLK_RATIO">12</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.S01_AXIS_FIFO_MODE">1_(Normal)</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.S01_AXIS_FIFO_MODE">0_(Disabled)</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.C_S01_AXIS_FIFO_DEPTH">128</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.C_M02_AXIS_REG_CONFIG">0</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.M02_AXIS_TDATA_NUM_BYTES">1</spirit:configurableElementValue>
@@ -671,8 +671,8 @@
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_S13_AXIS_FIFO_DEPTH">32</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_S14_AXIS_FIFO_DEPTH">32</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_S15_AXIS_FIFO_DEPTH">32</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_S00_AXIS_FIFO_MODE">1</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_S01_AXIS_FIFO_MODE">1</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_S00_AXIS_FIFO_MODE">0</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_S01_AXIS_FIFO_MODE">0</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_S02_AXIS_FIFO_MODE">0</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_S03_AXIS_FIFO_MODE">0</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_S04_AXIS_FIFO_MODE">0</spirit:configurableElementValue>

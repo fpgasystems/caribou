@@ -15,6 +15,7 @@
 //--  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //---------------------------------------------------------------------------
 
+
 module nukv_Value_Get #(
 	parameter KEY_WIDTH = 128,
 	parameter HEADER_WIDTH = 42, //vallen + val addr
@@ -140,7 +141,7 @@ always @(posedge clk) begin
 
 				scanning <= scan_mode;
 
-				if (flush==0) begin
+				if (flush==0 && output_ready==1) begin
 
 					if (input_valid==1 && (input_data[KEY_WIDTH+HEADER_WIDTH+META_WIDTH-7:KEY_WIDTH+HEADER_WIDTH+META_WIDTH-8]==2'b01 || input_data[KEY_WIDTH+HEADER_WIDTH+META_WIDTH-7:KEY_WIDTH+HEADER_WIDTH+META_WIDTH-8]==2'b10) ) begin
 						

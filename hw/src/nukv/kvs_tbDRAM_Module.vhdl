@@ -57,7 +57,21 @@ architecture packed of kvs_tbDRAM_Module is
 
   type stateType is (IDLE, INCREMENT, X1, X2, X3);
   
-  
+   component nukv_fifogen
+      GENERIC (
+       ADDR_BITS : integer;
+       DATA_SIZE : integer
+      ) ;
+     PORT (
+     clk : IN STD_LOGIC;
+     rst : IN STD_LOGIC;
+     s_axis_tdata : IN STD_LOGIC_VECTOR(DATA_SIZE-1 DOWNTO 0);
+     s_axis_tvalid: IN STD_LOGIC;
+     s_axis_tready : OUT STD_LOGIC;
+     m_axis_tdata : OUT STD_LOGIC_VECTOR(DATA_SIZE-1 DOWNTO 0);      
+     m_axis_tvalid : OUT STD_LOGIC;
+     m_axis_tready : IN STD_LOGIC
+           );END component;
   component fifogen_dram_data_in
     PORT (
     clk : IN STD_LOGIC;
@@ -110,10 +124,14 @@ architecture packed of kvs_tbDRAM_Module is
   signal rdCmdPop : std_logic;
   signal rdCmdData : std_logic_vector(DRAM_CMD_WIDTH-1 downto 0);
 
-  signal rdEmpty : std_logic_vector((DRAM_DATA_WIDTH/512)-1 downto 0);
-  signal rdFull : std_logic_vector((DRAM_DATA_WIDTH/512)-1 downto 0);
+  signal rdNotEmpty : std_logic_vector((DRAM_DATA_WIDTH/512)-1 downto 0);
+  signal rdNotFull : std_logic_vector((DRAM_DATA_WIDTH/512)-1 downto 0);
+  signal rdProgFull : std_logic_vector((DRAM_DATA_WIDTH/512)-1 downto 0);
   signal rdData : std_logic_vector(DRAM_DATA_WIDTH-1 downto 0);
   signal rdPush : std_logic;
+  
+    signal dataread :std_logic;
+
 
   signal writeDram : std_logic;
   signal rdDataEmpty : std_logic;
@@ -151,20 +169,25 @@ begin  -- packed
       rdCmdEmpty
     );
 
-  shiftvalid <= shiftreg(513*64-1);
-  rd_data_out: for X in (DRAM_DATA_WIDTH/512)-1 downto 0 generate
-    rd_data_i : fifogen_dram_data_out
-      port map (
-        clk, rstBuf,
-        shiftreg(513*64-2 downto 513*63), shiftvalid,
-        --rdData(512*(X+1)-1 downto 512*X), rdPush,
-        dramRdData_ready, dramRdData_data(512*(X+1)-1 downto 512*X),
-        rdFull(X), rdEmpty(X)
-        );
-      
-  end generate rd_data_out;
+  shiftvalid <= shiftreg(513*16-1);
   
-  dramRdData_valid <= not rdEmpty(0);
+  
+  --rd_data_out: for X in (DRAM_DATA_WIDTH/512)-1 downto 0 generate
+    rd_data_i : nukv_fifogen
+      generic map (8,512)
+      port map (
+        clk, rst,
+        --shiftreg(513*7-2 downto 513*7-513), shiftvalid,
+        shiftreg(513*16-2 downto 513*16-513), shiftvalid, rdNotFull(0),
+        dramRdData_data(511 downto 0),  rdNotEmpty(0), dataread
+        
+        );
+    
+  --end generate rd_data_out;
+  
+  dataread <= dramRdData_ready ; --when clocker<8 else '0'; 
+  dramRdData_valid <= rdNotEmpty(0); -- when clocker<8 else '1';
+  
   cmd_dramWrData_ready <= not cmd_dramWrData_stall; 
   
   wr_cmd_in : fifogen_dram_cmd_in
@@ -220,7 +243,7 @@ begin  -- packed
         shiftreg <= (others => '0');
       else
       
-        shiftreg(513*64-1 downto 513) <= shiftreg(513*63-1 downto 0);
+        shiftreg(513*16-1 downto 513) <= shiftreg(513*15-1 downto 0);
         shiftreg(512 downto 0) <= rdPush & rdData;
         -----------------------------------------------------------------------
         -- READ ---------------------------------------------------------------
@@ -241,7 +264,7 @@ begin  -- packed
             rdCmdPop <= '0';
             
             --if rdFull(0)='0' then
-            if (rdFull(0)='0' or rdFull(0)='1') then
+            if (rdNotFull(0)='1') then
               rdPush <= '1';
               readAddr <= readAddr+1;
               readCnt <= readCnt-1;

@@ -49,8 +49,8 @@ wire [MAX_REGEX_ENGINES-1:0] regex_input_ready;
 reg [MAX_REGEX_ENGINES-1:0] regex_input_enable;	 
 reg [MAX_REGEX_ENGINES-1:0] regex_input_type;	
 
-reg [MAX_REGEX_ENGINES-1:0] softReset; 
-reg [MAX_REGEX_ENGINES-1:0] softResetInt; 
+reg softReset; 
+reg softResetInt; 
 
 wire [MAX_REGEX_ENGINES*16-1:0] regex_output_index ;
 wire [MAX_REGEX_ENGINES-1:0] regex_output_match;
@@ -71,8 +71,10 @@ reg regex_inputbuffer_ok;
 reg regex_inputbuffer_pre;
 reg [7:0] config_ahead;
 
+reg in_scan_mode;
+
 assign input_ready = (regex_inputbuffer_ok); 
-assign config_ready = ~regex_input_enable[config_regex_engine] && (regex_inputbuffer_ok) && (config_ahead<MAX_REGEX_ENGINES-1); 
+assign config_ready = in_scan_mode==0 ? (~regex_input_enable[config_regex_engine] && (regex_inputbuffer_ok) && (config_ahead<MAX_REGEX_ENGINES-1)) : 0; 
 
 reg rstBuf;
 
@@ -90,8 +92,12 @@ always @(posedge clk) begin
 		regex_inputbuffer_ok <= 0;
 		regex_inputbuffer_pre <= 0;
 		config_ahead <= 0;
+		in_scan_mode <= 0;		
 	end
 	else begin
+	   
+	    
+	   
 		regex_input_enable <= 0;			
 
 		regex_inputbuffer_pre <= (regex_input_notfull == {MAX_REGEX_ENGINES{1'b1}} ? 1 : 0) && (regex_input_almfull == 0 ? 1 : 0);
@@ -104,6 +110,10 @@ always @(posedge clk) begin
 			regex_input_type[config_regex_engine] <= 1;
 
 			config_ahead <= config_ahead+1;
+			
+			if (config_data[511]==1) begin
+			  in_scan_mode <= 1;
+			end
 			
 			if (config_regex_engine==MAX_REGEX_ENGINES-1) begin
 				config_regex_engine <= 0;
@@ -155,13 +165,12 @@ end
 assign found_valid = outfifo_valid[output_regex_engine];
 assign found_loc = outfifo_data[output_regex_engine];
 
-always @(posedge fast_clk) begin
-	if (fast_rst==1) begin
-		softResetInt <= {MAX_REGEX_ENGINES{1'b1}};
-	end else begin
-		softResetInt <= regex_input_enable & regex_input_type;
-	end
+reg rstBufForFast;
 
+always @(posedge fast_clk) begin
+
+	rstBufForFast <= rstBuf;
+	softResetInt <= rstBufForFast;
 	softReset <= softResetInt;
 end
 
@@ -195,7 +204,7 @@ generate
 		rem_top_ff rem_top_instance (
 			    .clk(fast_clk),
 	  			.rst(fast_rst),   			
-	  			.softRst(0),//softReset[X]),
+	  			.softRst(softReset),
 
 	    		.input_valid(regex_input_hasdata[X]),
 	    		.input_data(regex_input_data[X][511:0]),
